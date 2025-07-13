@@ -172,7 +172,7 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2 cyber-pulse">24/7</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">24/7</div>
               <div className="text-lg text-muted-foreground">Monitoring</div>
             </div>
             <div className="text-center">
@@ -180,7 +180,7 @@ const Home = () => {
               <div className="text-lg text-muted-foreground">Threat Detection</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-accent mb-2 cyber-pulse">50+</div>
+              <div className="text-4xl md:text-5xl font-bold text-accent mb-2">50+</div>
               <div className="text-lg text-muted-foreground">Protected Clients</div>
             </div>
           </motion.div>
