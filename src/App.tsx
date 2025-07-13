@@ -7,6 +7,7 @@ import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Services from "./pages/Services";
+import Solutions from "./pages/Solutions";
 import UnderConstruction from "./pages/UnderConstruction";
 import VAPT from "./pages/services/VAPT";
 import RedTeaming from "./pages/services/RedTeaming";
@@ -32,6 +33,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/solutions" element={<Solutions />} />
             <Route path="/services/vapt" element={<VAPT />} />
             <Route path="/services/red-teaming" element={<RedTeaming />} />
             <Route path="/services/ai-ml-security" element={<AIMLSecurity />} />
