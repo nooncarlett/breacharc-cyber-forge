@@ -1,406 +1,442 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Edit, MapPin, Clock, Briefcase } from 'lucide-react';
+import { Plus, Trash2, Edit, MapPin, Clock, Briefcase, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-export interface Job {
-  id: number;
+interface Job {
+  id: string;
   title: string;
   department: string;
   location: string;
   type: string;
-  experience: string;
-  skills: string[];
   description: string;
   requirements: string[];
+  responsibilities: string[];
+  salary_range: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-interface AdminJobManagerProps {
-  jobs: Job[];
-  setJobs: React.Dispatch<React.SetStateAction<Job[]>>;
-}
-
-export default function AdminJobManager({ jobs, setJobs }: AdminJobManagerProps) {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const { toast } = useToast();
-
-  const [jobForm, setJobForm] = useState({
+export default function AdminJobManager() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [formData, setFormData] = useState({
     title: '',
     department: '',
     location: '',
-    type: '',
-    experience: '',
-    skills: '',
+    type: 'Full-time',
     description: '',
-    requirements: ''
+    requirements: '',
+    responsibilities: '',
+    salary_range: ''
   });
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const resetForm = () => {
-    setJobForm({
-      title: '',
-      department: '',
-      location: '',
-      type: '',
-      experience: '',
-      skills: '',
-      description: '',
-      requirements: ''
-    });
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddJob = (e: React.FormEvent) => {
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newJob: Job = {
-      id: Math.max(...jobs.map(j => j.id), 0) + 1,
-      title: jobForm.title,
-      department: jobForm.department,
-      location: jobForm.location,
-      type: jobForm.type,
-      experience: jobForm.experience,
-      skills: jobForm.skills.split(',').map(s => s.trim()).filter(s => s),
-      description: jobForm.description,
-      requirements: jobForm.requirements.split('\n').map(r => r.trim()).filter(r => r)
-    };
+    setIsSubmitting(true);
 
-    setJobs([...jobs, newJob]);
-    resetForm();
-    setIsAddDialogOpen(false);
-    toast({
-      title: "Job Added",
-      description: "New job posting has been added successfully.",
-    });
+    try {
+      const jobData = {
+        ...formData,
+        requirements: formData.requirements.split('\n').filter(req => req.trim()),
+        responsibilities: formData.responsibilities.split('\n').filter(resp => resp.trim())
+      };
+
+      let error;
+      if (editingJob) {
+        const { error: updateError } = await supabase
+          .from('jobs')
+          .update(jobData)
+          .eq('id', editingJob.id);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('jobs')
+          .insert([jobData]);
+        error = insertError;
+      }
+
+      if (error) throw error;
+
+      toast({
+        title: editingJob ? "Job Updated" : "Job Created",
+        description: `Job posting has been ${editingJob ? 'updated' : 'created'} successfully.`,
+      });
+
+      setFormData({
+        title: '',
+        department: '',
+        location: '',
+        type: 'Full-time',
+        description: '',
+        requirements: '',
+        responsibilities: '',
+        salary_range: ''
+      });
+      setEditingJob(null);
+      fetchJobs();
+    } catch (error) {
+      console.error('Error saving job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save job. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleEditJob = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingJob) return;
-
-    const updatedJob: Job = {
-      ...editingJob,
-      title: jobForm.title,
-      department: jobForm.department,
-      location: jobForm.location,
-      type: jobForm.type,
-      experience: jobForm.experience,
-      skills: jobForm.skills.split(',').map(s => s.trim()).filter(s => s),
-      description: jobForm.description,
-      requirements: jobForm.requirements.split('\n').map(r => r.trim()).filter(r => r)
-    };
-
-    setJobs(jobs.map(job => job.id === editingJob.id ? updatedJob : job));
-    resetForm();
-    setEditingJob(null);
-    toast({
-      title: "Job Updated",
-      description: "Job posting has been updated successfully.",
-    });
-  };
-
-  const handleDeleteJob = (id: number) => {
-    setJobs(jobs.filter(job => job.id !== id));
-    toast({
-      title: "Job Deleted",
-      description: "Job posting has been deleted successfully.",
-    });
-  };
-
-  const openEditDialog = (job: Job) => {
+  const handleEdit = (job: Job) => {
     setEditingJob(job);
-    setJobForm({
+    setFormData({
       title: job.title,
       department: job.department,
       location: job.location,
       type: job.type,
-      experience: job.experience,
-      skills: job.skills.join(', '),
       description: job.description,
-      requirements: job.requirements.join('\n')
+      requirements: job.requirements?.join('\n') || '',
+      responsibilities: job.responsibilities?.join('\n') || '',
+      salary_range: job.salary_range || ''
     });
   };
 
+  const handleDelete = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job posting?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Job Deleted",
+        description: "Job posting has been deleted successfully.",
+      });
+
+      fetchJobs();
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete job. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleStatus = async (jobId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ is_active: !currentStatus })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: `Job has been ${!currentStatus ? 'activated' : 'deactivated'}.`,
+      });
+
+      fetchJobs();
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredJobs = jobs.filter(job =>
+    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Job Management</h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="btn-cyber">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Job
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Job</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleAddJob} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="title">Job Title *</Label>
-                  <Input
-                    id="title"
-                    value={jobForm.title}
-                    onChange={(e) => setJobForm(prev => ({ ...prev, title: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="department">Department *</Label>
-                  <Input
-                    id="department"
-                    value={jobForm.department}
-                    onChange={(e) => setJobForm(prev => ({ ...prev, department: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="location">Location *</Label>
-                  <Select onValueChange={(value) => setJobForm(prev => ({ ...prev, location: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Bangalore, India">Bangalore, India</SelectItem>
-                      <SelectItem value="Remote">Remote</SelectItem>
-                      <SelectItem value="Hybrid">Hybrid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="type">Job Type *</Label>
-                  <Select onValueChange={(value) => setJobForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Full-time">Full-time</SelectItem>
-                      <SelectItem value="Part-time">Part-time</SelectItem>
-                      <SelectItem value="Contract">Contract</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="experience">Experience *</Label>
-                  <Input
-                    id="experience"
-                    value={jobForm.experience}
-                    onChange={(e) => setJobForm(prev => ({ ...prev, experience: e.target.value }))}
-                    placeholder="e.g., 3-5 years"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="skills">Skills (comma-separated) *</Label>
-                <Input
-                  id="skills"
-                  value={jobForm.skills}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, skills: e.target.value }))}
-                  placeholder="e.g., OSCP, Web Application Testing, Network Security"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  rows={3}
-                  value={jobForm.description}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, description: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="requirements">Requirements (one per line) *</Label>
-                <Textarea
-                  id="requirements"
-                  rows={4}
-                  value={jobForm.requirements}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, requirements: e.target.value }))}
-                  placeholder="Enter each requirement on a new line"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full btn-cyber">
-                Add Job
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+    <div className="space-y-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Job Management</h1>
+        <p className="text-muted-foreground">Manage job postings for the careers page</p>
       </div>
 
-      {/* Jobs List */}
-      <div className="space-y-4">
-        {jobs.map((job, index) => (
-          <motion.div
-            key={job.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <Card className="cyber-card">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Job Form */}
+        <div>
+          <Card className="cyber-card">
+            <CardHeader>
+              <CardTitle>{editingJob ? 'Edit Job' : 'Create New Job'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="w-4 h-4" />
-                        {job.department}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {job.location}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {job.type}
-                      </div>
-                    </div>
+                    <Label htmlFor="title">Job Title *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      required
+                      className="mt-1"
+                    />
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditDialog(job)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteJob(job.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div>
+                    <Label htmlFor="department">Department *</Label>
+                    <Input
+                      id="department"
+                      value={formData.department}
+                      onChange={(e) => handleInputChange('department', e.target.value)}
+                      required
+                      className="mt-1"
+                    />
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">{job.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
-                    <Badge key={skill} variant="outline">{skill}</Badge>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="location">Location *</Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="type">Employment Type *</Label>
+                    <Select onValueChange={(value) => handleInputChange('type', value)}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder={formData.type || "Select type"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Full-time">Full-time</SelectItem>
+                        <SelectItem value="Part-time">Part-time</SelectItem>
+                        <SelectItem value="Contract">Contract</SelectItem>
+                        <SelectItem value="Internship">Internship</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="salary_range">Salary Range</Label>
+                  <Input
+                    id="salary_range"
+                    value={formData.salary_range}
+                    onChange={(e) => handleInputChange('salary_range', e.target.value)}
+                    placeholder="e.g., ₹8,00,000 - ₹15,00,000"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Job Description *</Label>
+                  <Textarea
+                    id="description"
+                    rows={4}
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    required
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="requirements">Requirements (one per line) *</Label>
+                  <Textarea
+                    id="requirements"
+                    rows={4}
+                    value={formData.requirements}
+                    onChange={(e) => handleInputChange('requirements', e.target.value)}
+                    required
+                    className="mt-1"
+                    placeholder="Enter each requirement on a new line"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="responsibilities">Responsibilities (one per line) *</Label>
+                  <Textarea
+                    id="responsibilities"
+                    rows={4}
+                    value={formData.responsibilities}
+                    onChange={(e) => handleInputChange('responsibilities', e.target.value)}
+                    required
+                    className="mt-1"
+                    placeholder="Enter each responsibility on a new line"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-cyber flex-1"
+                  >
+                    {isSubmitting ? 'Saving...' : (editingJob ? 'Update Job' : 'Create Job')}
+                  </Button>
+                  {editingJob && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingJob(null);
+                        setFormData({
+                          title: '',
+                          department: '',
+                          location: '',
+                          type: 'Full-time',
+                          description: '',
+                          requirements: '',
+                          responsibilities: '',
+                          salary_range: ''
+                        });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Jobs List */}
+        <div>
+          <Card className="cyber-card">
+            <CardHeader>
+              <CardTitle>Current Job Postings</CardTitle>
+              <div className="mt-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search jobs..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading jobs...</p>
+                </div>
+              ) : filteredJobs.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No jobs found</p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {filteredJobs.map((job) => (
+                    <Card key={job.id} className="cyber-card">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold">{job.title}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {job.department} • {job.location} • {job.type}
+                            </p>
+                            {job.salary_range && (
+                              <p className="text-sm text-primary font-medium">
+                                {job.salary_range}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant={job.is_active ? "default" : "secondary"}>
+                            {job.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {job.description}
+                        </p>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(job)}
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleToggleStatus(job.id, job.is_active)}
+                          >
+                            {job.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(job.id)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Edit Dialog */}
-      <Dialog open={editingJob !== null} onOpenChange={() => setEditingJob(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Job</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditJob} className="space-y-4">
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="edit-title">Job Title *</Label>
-                <Input
-                  id="edit-title"
-                  value={jobForm.title}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, title: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-department">Department *</Label>
-                <Input
-                  id="edit-department"
-                  value={jobForm.department}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, department: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="edit-location">Location *</Label>
-                <Select value={jobForm.location} onValueChange={(value) => setJobForm(prev => ({ ...prev, location: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Bangalore, India">Bangalore, India</SelectItem>
-                    <SelectItem value="Remote">Remote</SelectItem>
-                    <SelectItem value="Hybrid">Hybrid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="edit-type">Job Type *</Label>
-                <Select value={jobForm.type} onValueChange={(value) => setJobForm(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Full-time">Full-time</SelectItem>
-                    <SelectItem value="Part-time">Part-time</SelectItem>
-                    <SelectItem value="Contract">Contract</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="edit-experience">Experience *</Label>
-                <Input
-                  id="edit-experience"
-                  value={jobForm.experience}
-                  onChange={(e) => setJobForm(prev => ({ ...prev, experience: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="edit-skills">Skills (comma-separated) *</Label>
-              <Input
-                id="edit-skills"
-                value={jobForm.skills}
-                onChange={(e) => setJobForm(prev => ({ ...prev, skills: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-description">Description *</Label>
-              <Textarea
-                id="edit-description"
-                rows={3}
-                value={jobForm.description}
-                onChange={(e) => setJobForm(prev => ({ ...prev, description: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-requirements">Requirements (one per line) *</Label>
-              <Textarea
-                id="edit-requirements"
-                rows={4}
-                value={jobForm.requirements}
-                onChange={(e) => setJobForm(prev => ({ ...prev, requirements: e.target.value }))}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full btn-cyber">
-              Update Job
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
