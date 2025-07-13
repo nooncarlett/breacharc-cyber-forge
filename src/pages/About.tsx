@@ -5,10 +5,9 @@ import { Badge } from '@/components/ui/badge';
 
 export default function About() {
   const stats = [
-    { label: 'Years of Experience', value: '3+', icon: Award },
-    { label: 'Security Professionals', value: '10+', icon: Users },
-    { label: 'Clients Protected', value: '50+', icon: Shield },
-    { label: 'Successful Projects', value: '100+', icon: Target }
+    { label: 'Monitoring', value: '24/7', icon: Award },
+    { label: 'Threat Detection', value: '99.9%', icon: Shield },
+    { label: 'Protected Clients', value: '50+', icon: Users }
   ];
 
   const certifications = [
