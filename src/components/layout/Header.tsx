@@ -22,7 +22,7 @@ const Header = () => {
     { name: 'SERVICES', href: '/services', hasDropdown: true },
     { name: 'SOLUTIONS', href: '/solutions' },
     { name: 'ABOUT', href: '/about' },
-    { name: 'RESOURCES', href: '/resources' },
+    { name: 'RESOURCES', href: '/under-construction' },
   ];
 
   const serviceItems = [

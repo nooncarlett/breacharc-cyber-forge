@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye, AlertTriangle, Shield, Database, Users, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function DarkWebMonitoring() {
   const threats = [
@@ -70,8 +71,8 @@ export default function DarkWebMonitoring() {
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Continuous surveillance of hidden forums, marketplaces, and leak sites to detect threats to your organization before they can be exploited.
           </p>
-          <Button size="lg" className="mr-4">
-            Get Free Consultation
+          <Button asChild size="lg" className="mr-4">
+            <Link to="/contact">Get Free Consultation</Link>
           </Button>
         </div>
       </section>
@@ -212,7 +213,9 @@ export default function DarkWebMonitoring() {
           <p className="text-xl text-muted-foreground mb-8">
             Contact us for dark web monitoring and threat intelligence tailored to your organization's needs.
           </p>
-          <Button size="lg">Get in Touch</Button>
+          <Button asChild size="lg">
+            <Link to="/contact">Get in Touch</Link>
+          </Button>
         </div>
       </section>
     </div>

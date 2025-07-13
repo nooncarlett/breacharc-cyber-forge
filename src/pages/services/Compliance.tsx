@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, FileCheck, Users, TrendingUp, Lock, Award } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Compliance() {
   const frameworks = [
@@ -69,8 +70,8 @@ export default function Compliance() {
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Meet regulatory, legal, and industry standards for information security and data privacy with expert guidance through frameworks like ISO 27001, SOC 2, GDPR, PCI DSS, and more.
           </p>
-          <Button size="lg" className="mr-4">
-            Get Free Consultation
+          <Button asChild size="lg" className="mr-4">
+            <Link to="/contact">Get Free Consultation</Link>
           </Button>
         </div>
       </section>
@@ -211,7 +212,9 @@ export default function Compliance() {
           <p className="text-xl text-muted-foreground mb-8">
             Contact us for a compliance assessment and expert guidance tailored to your industry and regulatory needs.
           </p>
-          <Button size="lg">Get in Touch</Button>
+          <Button asChild size="lg">
+            <Link to="/contact">Get in Touch</Link>
+          </Button>
         </div>
       </section>
     </div>

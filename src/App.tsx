@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+import Services from "./pages/Services";
+import UnderConstruction from "./pages/UnderConstruction";
 import VAPT from "./pages/services/VAPT";
 import RedTeaming from "./pages/services/RedTeaming";
 import AIMLSecurity from "./pages/services/AIMLSecurity";
@@ -29,6 +31,7 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/services/vapt" element={<VAPT />} />
             <Route path="/services/red-teaming" element={<RedTeaming />} />
             <Route path="/services/ai-ml-security" element={<AIMLSecurity />} />
@@ -40,6 +43,7 @@ const App = () => (
             <Route path="/resources" element={<Resources />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/under-construction" element={<UnderConstruction />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

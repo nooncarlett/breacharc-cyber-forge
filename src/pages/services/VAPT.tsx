@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Search, Target, FileText, Users, Award } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function VAPT() {
   return (
@@ -19,8 +20,8 @@ export default function VAPT() {
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Identify and validate vulnerabilities in your digital infrastructure with our expert-driven VAPT services.
           </p>
-          <Button size="lg" className="mr-4">
-            Get Free Consultation
+          <Button asChild size="lg" className="mr-4">
+            <Link to="/contact">Get Free Consultation</Link>
           </Button>
         </div>
       </section>
@@ -165,7 +166,9 @@ export default function VAPT() {
           <p className="text-xl text-muted-foreground mb-8">
             Contact us for a free initial security assessment and see how our VAPT services can help protect your organization.
           </p>
-          <Button size="lg">Get in Touch</Button>
+          <Button asChild size="lg">
+            <Link to="/contact">Get in Touch</Link>
+          </Button>
         </div>
       </section>
     </div>

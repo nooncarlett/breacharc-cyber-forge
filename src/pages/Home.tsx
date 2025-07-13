@@ -143,7 +143,7 @@ const Home = () => {
               <Button asChild size="lg" className="btn-cyber text-lg px-8 py-4">
                 <Link to="/contact">Get Security Assessment</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="btn-neon text-lg px-8 py-4">
+              <Button asChild variant="outline" size="lg" className="btn-neon text-lg px-8 py-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <Link to="/services">Explore Solutions</Link>
               </Button>
             </motion.div>
@@ -177,7 +177,7 @@ const Home = () => {
               <div className="text-lg text-muted-foreground">Monitoring</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-secondary mb-2 cyber-pulse">99.9%</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">99.9%</div>
               <div className="text-lg text-muted-foreground">Threat Detection</div>
             </div>
             <div className="text-center">
@@ -250,6 +250,7 @@ const Home = () => {
                     <Link 
                       to={service.href}
                       className="inline-flex items-center text-primary hover:text-accent transition-colors duration-200 group-hover:translate-x-2 transform transition-transform"
+                      onClick={() => window.scrollTo(0, 0)}
                     >
                       Read More <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
@@ -295,8 +296,8 @@ const Home = () => {
                         </li>
                       ))}
                     </ul>
-                    <Button className="btn-neon w-full">
-                      {industry.cta}
+                    <Button asChild className="btn-neon w-full">
+                      <Link to="/contact">{industry.cta}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -366,7 +367,7 @@ const Home = () => {
                   
                   <div className="flex justify-between items-center">
                     <span>Response Time</span>
-                    <span className="text-secondary font-mono">&lt; 1hr</span>
+                    <span className="text-primary font-mono">&lt; 1hr</span>
                   </div>
                   <div className="w-full bg-border rounded-full h-2">
                     <div className="bg-secondary h-2 rounded-full w-[95%]" />
@@ -418,7 +419,7 @@ const Home = () => {
                     <h3 className="text-2xl font-bold mb-4">{resource.title}</h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">{resource.desc}</p>
                     <Button asChild className="btn-cyber">
-                      <Link to={resource.href}>{resource.cta}</Link>
+                      <Link to="/under-construction">{resource.cta}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -467,8 +468,7 @@ const Home = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <CyberBackground className="opacity-20" />
+      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
             className="text-center max-w-4xl mx-auto"

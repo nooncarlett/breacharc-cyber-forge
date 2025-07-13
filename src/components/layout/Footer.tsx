@@ -12,19 +12,22 @@ const Footer = () => {
     { name: 'Dark Web Monitoring', href: '/services/dark-web-monitoring' },
   ];
 
+  const handleEventsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert('No upcoming events at the moment. Please check back later!');
+  };
+
   const resources = [
-    { name: 'Blog', href: '/resources#blog' },
-    { name: 'Whitepapers', href: '/resources#whitepapers' },
-    { name: 'Security Tools', href: '/resources#tools' },
-    { name: 'Research', href: '/resources#research' },
-    { name: 'Events', href: '/resources#events' },
+    { name: 'Blog', href: '/under-construction' },
+    { name: 'Whitepapers', href: '/under-construction' },
+    { name: 'Security Tools', href: '/under-construction' },
+    { name: 'Research', href: '/under-construction' },
+    { name: 'Events', href: '#', onClick: handleEventsClick },
   ];
 
   const company = [
     { name: 'About Us', href: '/about' },
     { name: 'Careers', href: '/careers' },
-    { name: 'Press', href: '/about#press' },
-    { name: 'Partners', href: '/about#partners' },
     { name: 'Contact', href: '/contact' },
   ];
 
@@ -93,12 +96,21 @@ const Footer = () => {
             <ul className="space-y-3">
               {resources.map((resource) => (
                 <li key={resource.name}>
-                  <Link
-                    to={resource.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
-                  >
-                    {resource.name}
-                  </Link>
+                  {resource.onClick ? (
+                    <button
+                      onClick={resource.onClick}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                    >
+                      {resource.name}
+                    </button>
+                  ) : (
+                    <Link
+                      to={resource.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                    >
+                      {resource.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

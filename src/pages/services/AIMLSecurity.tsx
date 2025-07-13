@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Shield, Zap, AlertTriangle, Database, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function AIMLSecurity() {
   const threats = [
@@ -61,8 +62,8 @@ export default function AIMLSecurity() {
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Protect your artificial intelligence and machine learning systems from adversarial threats, data poisoning, model theft, and other emerging risks.
           </p>
-          <Button size="lg" className="mr-4">
-            Get Free Consultation
+          <Button asChild size="lg" className="mr-4">
+            <Link to="/contact">Get Free Consultation</Link>
           </Button>
         </div>
       </section>
@@ -209,7 +210,9 @@ export default function AIMLSecurity() {
           <p className="text-xl text-muted-foreground mb-8">
             Contact us for an AI/ML security assessment and protect your models, data, and business from emerging threats.
           </p>
-          <Button size="lg">Get in Touch</Button>
+          <Button asChild size="lg">
+            <Link to="/contact">Get in Touch</Link>
+          </Button>
         </div>
       </section>
     </div>
