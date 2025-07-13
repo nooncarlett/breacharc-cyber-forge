@@ -4,6 +4,7 @@ import { Shield, Monitor, Users, TrendingUp, ChevronRight, ArrowRight } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import TypedText from '@/components/ui/typed-text';
+import CyberBackground from '@/components/3d/CyberBackground';
 
 const Home = () => {
   const services = [
