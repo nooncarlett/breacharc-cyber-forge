@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, Monitor, Users, TrendingUp, ChevronRight, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import CyberBackground from '@/components/3d/CyberBackground';
+import TypedText from '@/components/ui/typed-text';
 
 const Home = () => {
   const services = [
@@ -89,8 +89,10 @@ const Home = () => {
   return (
     <div className="relative">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <CyberBackground className="opacity-30" />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-secondary/20 to-background">
+        {/* Professional geometric background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute inset-0 cyber-grid opacity-30" />
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -101,13 +103,24 @@ const Home = () => {
           >
             <div className="mb-8">
               <motion.h1 
-                className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent glitch"
-                data-text="Secure Business Solutions"
+                className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, delay: 0.2 }}
               >
-                Secure Business Solutions
+                <TypedText
+                  strings={[
+                    'Enterprise Cybersecurity Protection',
+                    'Advanced Threat Defense',
+                    'Secure Business Solutions'
+                  ]}
+                  typeSpeed={50}
+                  backSpeed={30}
+                  backDelay={2000}
+                  loop={true}
+                  showCursor={true}
+                  cursorChar="|"
+                />
               </motion.h1>
               
               <motion.p 
