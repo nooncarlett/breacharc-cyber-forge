@@ -4,6 +4,7 @@ import { Shield, Monitor, Users, TrendingUp, ChevronRight, ArrowRight } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import TypedText from '@/components/ui/typed-text';
+import CyberBackground from '@/components/3d/CyberBackground';
 
 const Home = () => {
   const services = [
@@ -90,9 +91,11 @@ const Home = () => {
     <div className="relative">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-secondary/20 to-background">
+        {/* Three.js animated background */}
+        <CyberBackground className="opacity-40" />
         {/* Professional geometric background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="absolute inset-0 cyber-grid opacity-30" />
+        <div className="absolute inset-0 cyber-grid opacity-20" />
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
