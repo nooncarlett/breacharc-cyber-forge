@@ -103,14 +103,14 @@ const Home = () => {
           >
             <div className="mb-8">
               <motion.h1 
-                className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent"
+                className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, delay: 0.2 }}
               >
                 <TypedText
                   strings={[
-                    'Enterprise Cybersecurity Protection',
+                    'Enterprise Cybersecurity',
                     'Advanced Threat Defense',
                     'Secure Business Solutions'
                   ]}
