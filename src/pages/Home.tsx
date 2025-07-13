@@ -4,7 +4,6 @@ import { Shield, Monitor, Users, TrendingUp, ChevronRight, ArrowRight } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import TypedText from '@/components/ui/typed-text';
-import CyberBackground from '@/components/3d/CyberBackground';
 
 const Home = () => {
   const services = [
@@ -336,7 +335,7 @@ const Home = () => {
                   <div className="text-sm font-semibold">Certified Professionals</div>
                 </div>
                 <div className="text-center">
-                  <Monitor className="w-8 h-8 text-secondary mx-auto mb-2" />
+                  <Monitor className="w-8 h-8 text-primary mx-auto mb-2" />
                   <div className="text-sm font-semibold">24/7 Support</div>
                 </div>
                 <div className="text-center">
@@ -370,7 +369,7 @@ const Home = () => {
                     <span className="text-primary font-mono">&lt; 1hr</span>
                   </div>
                   <div className="w-full bg-border rounded-full h-2">
-                    <div className="bg-secondary h-2 rounded-full w-[95%]" />
+                    <div className="bg-primary h-2 rounded-full w-[95%]" />
                   </div>
                   
                   <div className="flex justify-between items-center">

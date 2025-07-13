@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, MapPin, Clock, Users, TrendingUp, Shield, Search, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Careers() {
@@ -17,6 +17,8 @@ export default function Careers() {
   const [locationFilter, setLocationFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const [applicationData, setApplicationData] = useState({
@@ -29,72 +31,31 @@ export default function Careers() {
     resume: null as File | null
   });
 
-  const jobs = [
-    {
-      id: 1,
-      title: 'Senior Penetration Tester',
-      department: 'Security Testing',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '3-5 years',
-      skills: ['OSCP', 'Web Application Testing', 'Network Security', 'Report Writing'],
-      description: 'Lead penetration testing engagements and mentor junior team members.',
-      requirements: [
-        'OSCP or equivalent certification',
-        '3+ years penetration testing experience',
-        'Strong knowledge of OWASP Top 10',
-        'Experience with Burp Suite, Metasploit, Nmap'
-      ]
-    },
-    {
-      id: 2,
-      title: 'Red Team Specialist',
-      department: 'Red Team Operations',
-      location: 'Remote',
-      type: 'Full-time',
-      experience: '4-6 years',
-      skills: ['CRTE', 'Social Engineering', 'Active Directory', 'C2 Frameworks'],
-      description: 'Conduct advanced red team exercises and develop custom tools.',
-      requirements: [
-        'CRTE/CRTO certification preferred',
-        '4+ years in offensive security',
-        'Experience with Cobalt Strike, Empire',
-        'Social engineering expertise'
-      ]
-    },
-    {
-      id: 3,
-      title: 'AI/ML Security Researcher',
-      department: 'Research & Development',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '2-4 years',
-      skills: ['Machine Learning', 'Adversarial AI', 'Python', 'TensorFlow'],
-      description: 'Research AI/ML security vulnerabilities and develop countermeasures.',
-      requirements: [
-        'PhD/Masters in Computer Science or related field',
-        'Experience with ML frameworks',
-        'Knowledge of adversarial attacks',
-        'Strong programming skills in Python'
-      ]
-    },
-    {
-      id: 4,
-      title: 'Compliance Consultant',
-      department: 'Governance & Compliance',
-      location: 'Hybrid',
-      type: 'Full-time',
-      experience: '3-5 years',
-      skills: ['ISO 27001', 'SOC 2', 'GDPR', 'Risk Assessment'],
-      description: 'Help clients achieve and maintain security compliance standards.',
-      requirements: [
-        'CISSP or CISM certification',
-        'Experience with compliance frameworks',
-        'Strong communication skills',
-        'Client-facing experience'
-      ]
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load job listings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const benefits = [
     {
@@ -180,27 +141,9 @@ export default function Careers() {
             className="text-center max-w-4xl mx-auto"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6">Join Our Team</h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Build the future of cybersecurity with industry-leading experts
+            <p className="text-xl text-muted-foreground">
+              Be part of the cybersecurity revolution. Build your career with passionate professionals protecting the digital world.
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary">10+</div>
-                <div className="text-sm text-muted-foreground">Team Members</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">100%</div>
-                <div className="text-sm text-muted-foreground">Remote Friendly</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">3+</div>
-                <div className="text-sm text-muted-foreground">Years Growing</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">24/7</div>
-                <div className="text-sm text-muted-foreground">Learning Culture</div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </section>
@@ -316,7 +259,7 @@ export default function Careers() {
                           </div>
                         </div>
                       </div>
-                      <Badge variant="secondary">{job.experience}</Badge>
+                      {job.salary_range && <Badge variant="secondary">{job.salary_range}</Badge>}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -324,8 +267,8 @@ export default function Careers() {
                     <div className="mb-4">
                       <h4 className="font-semibold mb-2">Required Skills:</h4>
                       <div className="flex flex-wrap gap-2">
-                        {job.skills.map((skill) => (
-                          <Badge key={skill} variant="outline">{skill}</Badge>
+                        {job.requirements?.map((req, idx) => (
+                          <Badge key={idx} variant="outline">{req}</Badge>
                         ))}
                       </div>
                     </div>
@@ -413,7 +356,11 @@ export default function Careers() {
             ))}
           </div>
 
-          {filteredJobs.length === 0 && (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-muted-foreground">Loading job opportunities...</p>
+            </div>
+          ) : filteredJobs.length === 0 && (
             <div className="text-center py-12">
               <p className="text-xl text-muted-foreground">No positions match your current filters.</p>
               <Button 
